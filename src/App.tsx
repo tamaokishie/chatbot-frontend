@@ -3,11 +3,13 @@ import './App.css';
 
 export const App = () => {
 
+  const buttonId = [1, 2, 3, 4, 5];
+
   const [message, setMessage] = useState<string | null>(null);
 
-  const handleClick = async () => {
+  const handleClick = async (num: number) => {
     try {
-      const response = await fetch('http://localhost:8000/hello', {
+      const response = await fetch(`http://localhost:8000/${num}`, {
         method: 'GET'
       });
   
@@ -24,12 +26,18 @@ export const App = () => {
   
 
   return (
-    <>
-      <button
-        className="button"
-        onClick={handleClick}>Hello
-      </button>
-      {message && <p>受信したメッセージ: {message}</p>}
-    </>
+    <div className="app">
+      <h1>好きな数字をクリックしてください。</h1>
+        {buttonId.map((num) => (
+          <>
+            <button
+              key= {num}
+              className="button"
+              onClick={() => handleClick(num)}>{num}
+            </button>
+          </>
+        ))}
+      <p>{message}</p>
+    </div>
   );
 };
