@@ -1,65 +1,74 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import './App.css';
 
-export const App = () => {
+interface ApiResponse {
+  response?: string;
+  message?: string;
+  error?: string;
+}
 
-  const buttonId = [1, 2, 3, 4, 5];
-
+export const App: React.FC = () => {
+  const BUTTON_IDS = [1, 2, 3, 4, 5];
+  const API_BASE_URL = 'http://localhost:8000';
   const [message, setMessage] = useState<string | null>(null);
   const [inputMessage, setInputMessage] = useState<string>('');
+  const fetchFromApi = async (url: string, options: RequestInit): Promise<ApiResponse> => {
+    try {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('API Error:', error);
+      throw new Error('APIリクエストに失敗しました');
+    }
+  };
 
   const handleClick = async (num: number) => {
     try {
-      const response = await fetch(`http://localhost:8000/${num}`, {
+      const data = await fetchFromApi(`${API_BASE_URL}/button/${num}`, {
         method: 'GET'
       });
-  
-      const data = await response.json();
-      console.log('Response:', data);
-
-      setMessage(data.message);
-
+      setMessage(data.response || null);
     } catch (error) {
-      console.error('Error:', error);
       setMessage("エラーが発生しました");
     }
   };
 
-  // メッセージ送信ボタンを押したときの処理
   const handleMessageSubmit = async () => {
+    if (!inputMessage.trim()) return;
     try {
-      const response = await fetch('http://localhost:8000/message', {
+      const data = await fetchFromApi(`${API_BASE_URL}/message/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        body: JSON.stringify({ message: inputMessage }), // 入力されたメッセージを送信
+        body: JSON.stringify({ message: inputMessage }),
       });
-
-      const data = await response.json();
-      console.log('Response:', data);
-
-      setMessage(data.response); // 受け取ったメッセージを表示
+      setMessage(data.message || null);
+      setInputMessage('');
     } catch (error) {
-      console.error('Error:', error);
       setMessage("エラーが発生しました");
     }
   };
-
+  
   return (
     <div className="app">
       <h1>好きな数字をクリックしてください。</h1>
-        {buttonId.map((num) => (
-          <>
-            <button
-              key= {num}
-              className="button"
-              onClick={() => handleClick(num)}>{num}
-            </button>
-          </>
+      <div className="button-container">
+        {BUTTON_IDS.map((num) => (
+          <button
+            key={num}
+            className="button"
+            onClick={() => handleClick(num)}
+          >
+            {num}
+          </button>
         ))}
-      <p>{message}</p>
-      {/* メッセージ入力フォーム */}
+      </div>
+      <div className="message-container">
+        {message && <p className="message">{message}</p>}
+      </div>
       <div className="input-container">
         <input
           className="input"
@@ -70,7 +79,9 @@ export const App = () => {
         />
         <button
           className="inputButton"
-          onClick={handleMessageSubmit}>
+          onClick={handleMessageSubmit}
+          disabled={!inputMessage.trim()}
+        >
           送信
         </button>
       </div>
