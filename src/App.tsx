@@ -14,7 +14,7 @@ export const App = () => {
       const data = await response.json();
       console.log('Response:', data);
 
-      setMessage(data.helllo);
+      setMessage(data.message);
 
     } catch (error) {
       console.error('Error:', error);
