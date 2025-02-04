@@ -4,16 +4,15 @@ import './App.css';
 export const App = () => {
   const handleClick = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api', {
-        method: 'POST', 
+      const response = await fetch('http://localhost:8000/hello', {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ message: 'Hello from React' })
+        }
       });
 
       const data = await response.json();
-      console.log('Response:', data);
+      console.log('Response:', data); // { hello: "world!" } が返るはず
     } catch (error) {
       console.error('Error:', error);
     }
